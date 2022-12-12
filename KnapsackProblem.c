@@ -17,7 +17,7 @@ int max(int a, int b)
     return a > b ? a : b;
 }
 
-int **Knapsack(int *values, int *weights, int capacity)
+int **Knapsack(int *values, int *weights, int capacity, int n)
 {
     int **table = (int **)malloc(sizeof(int *) * (capacity + 1));
 
@@ -36,17 +36,25 @@ int **Knapsack(int *values, int *weights, int capacity)
     // Fill table
     for (int i = 1; i < capacity + 1; i++) {
         for (int j = 1; j < capacity + 1; j++) {
-            // If weight of item is less than or equal to capacity
-            if (weights[i - 1] <= j) {
-                table[i][j] = max(values[i - 1] + table[i - 1][j - weights[i - 1]], table[i - 1][j]);
-            // If weight of item is more than capacity
-            } else {
+            // If weight of item is greater than capacity, then it cannot be included
+            if (weights[i - 1] > j) {
                 table[i][j] = table[i - 1][j];
+            // If weight of item is less than or equal to capacity, then it can be included
+            } else {
+                table[i][j] = max(values[i - 1] + table[i - 1][j - weights[i - 1]], table[i - 1][j]);
             }
         }
     }
 
     return table;
+}
+
+int KnapSackRecursive(int *values, int *weights, int capacity, int n)
+{
+    if (n == 0 || capacity == 0) return 0;
+
+    if (weights[n - 1] > capacity) return KnapSackRecursive(values, weights, capacity, n - 1);
+    else return max(values[n - 1] + KnapSackRecursive(values, weights, capacity - weights[n - 1], n - 1), KnapSackRecursive(values, weights, capacity, n - 1));
 }
 
 int main(int argc, char **argv)
@@ -64,8 +72,9 @@ int main(int argc, char **argv)
     weights[3] = 1;
 
     int capacity = 5;
+    int n = 4;
 
-    int **table = Knapsack(values, weights, capacity);
+    int **table = Knapsack(values, weights, capacity, n);
 
     printf("Table: \r\n");
     for (int i = 0; i < 5; i++) {
@@ -76,6 +85,8 @@ int main(int argc, char **argv)
     }
 
     printf("Max value: %d\r\n", table[4][4]);
+
+    printf("Recursive Max value: %d\r\n", KnapSackRecursive(values, weights, capacity, n));
 
     return 0;
 }
