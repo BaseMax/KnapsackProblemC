@@ -12,23 +12,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int max(int a, int b)
+{
+    return a > b ? a : b;
+}
+
 int **Knapsack(int *values, int *weights, int capacity)
 {
-    int **table = (int **)malloc(sizeof(int *) * 5);
-    for (int i = 0; i < 5; i++) {
-        table[i] = (int *)malloc(sizeof(int) * 5);
+    int **table = (int **)malloc(sizeof(int *) * (capacity + 1));
+
+    // Initialize table
+    for (int i = 0; i < capacity + 1; i++) {
+        table[i] = (int *)malloc(sizeof(int) * (capacity + 1));
     }
 
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
+    // Initialize columns and rows
+    for (int i = 0; i < capacity + 1; i++) {
+        for (int j = 0; j < capacity + 1; j++) {
             table[i][j] = 0;
         }
     }
 
-    for (int i = 1; i < 5; i++) {
-        for (int j = 1; j < 5; j++) {
+    // Fill table
+    for (int i = 1; i < capacity + 1; i++) {
+        for (int j = 1; j < capacity + 1; j++) {
+            // If weight of item is less than or equal to capacity
             if (weights[i - 1] <= j) {
-                table[i][j] = values[i - 1] + table[i - 1][j - weights[i - 1]];
+                table[i][j] = max(values[i - 1] + table[i - 1][j - weights[i - 1]], table[i - 1][j]);
+            // If weight of item is more than capacity
             } else {
                 table[i][j] = table[i - 1][j];
             }
@@ -49,11 +60,10 @@ int main(int argc, char **argv)
     int *weights = (int *)malloc(sizeof(int) * 4);
     weights[0] = 1;
     weights[1] = 2;
-    weights[2] = 3;
-    weights[3] = 4;
+    weights[2] = 2;
+    weights[3] = 1;
 
     int capacity = 5;
-
 
     int **table = Knapsack(values, weights, capacity);
 
